@@ -45,11 +45,16 @@ class DataFrameBuilder:
         "tiene_ctas_activas"
     ]
     
-    def __init__(self, dataframe, keep_original=False, test=False):
+    def __init__(self, dataframe,date=None, keep_original=False, test=False):
+        self.date=date
         self.test=test
         self.original_dataframe = self._assign_columns(dataframe.copy())
+        if self.test:
+            self.original_dataframe = self._test_preprocess(self.original_dataframe)
+            self.dataset_type='test'
         self.cleaned_dataframe = None
         self.keep_original = keep_original
+        self.dataset_type='train'
 
         
     def _assign_columns(self, dataframe):
@@ -58,6 +63,10 @@ class DataFrameBuilder:
             column_names.remove("gasto_familiar")
             column_names.insert(0, "id_registro")
         dataframe.columns = column_names
+        return dataframe
+    
+    def _test_preprocess(self, dataframe):
+        dataframe['cant_oblig_tot_sf']=dataframe['cant_oblig_tot_sf'].astype(float).fillna(0).astype(int)
         return dataframe
     
     # Manejo de datos faltantes
@@ -121,6 +130,17 @@ class DataFrameBuilder:
         dataframe['nro_tot_cuentas'] = pd.Series(np.where(dataframe['nro_tot_cuentas'] =="\\N", "0",
                                              dataframe['nro_tot_cuentas']
                                             )).astype("int")
+        
+        dataframe['cuota_de_consumo'] = dataframe['cuota_de_consumo'].astype(float)
+        dataframe['cuota_rotativos'] = dataframe['cuota_rotativos'].astype(float)
+        dataframe['cuota_tarjeta_de_credito'] = dataframe['cuota_tarjeta_de_credito'].astype(float)
+        dataframe['cuota_de_sector_solidario'] = dataframe['cuota_de_sector_solidario'].astype(float)
+        dataframe['cupo_tc_mdo'] = dataframe['cupo_tc_mdo'].astype(float)
+        dataframe['saldo_prom3_tdc_mdo'] = dataframe['saldo_prom3_tdc_mdo'].astype(float)
+        dataframe['cuota_tc_mdo'] = dataframe['cuota_tc_mdo'].astype(float)
+        dataframe['saldo_no_rot_mdo'] = dataframe['saldo_no_rot_mdo'].astype(float)
+        dataframe['cuota_libranza_sf'] = dataframe['cuota_libranza_sf'].astype(float)
+        dataframe['cuota_sector_real_comercio'] = dataframe['cuota_sector_real_comercio'].astype(float)
         ########### Procesamiento columnas de riesgo
         dataframe['ind_mora_vigente'] = np.where(
                                         dataframe['ind_mora_vigente'] == '\\N', "NApl",
@@ -173,11 +193,11 @@ class DataFrameBuilder:
         pass
     
     # Guardar Dataframe
-    def save_dataframe(self, dataframe, path):
-        pass
+    def save_dataframe(self, dataframe, path=None):
+        dataframe.to_csv(path)
     
     # En esta funcion va todo el flujo
-    def build(self, to_s3=False):
+    def build(self, save=True, to_s3=False):
         
         # Borrar variables
         sliced_dataframe = self.remove_columns(self.original_dataframe)
@@ -192,6 +212,8 @@ class DataFrameBuilder:
             self.original_dataframe = None
         
         # Guardado (En local o S3)
+        if save:
+            self.save_dataframe(cleaned_dataframe, path=f"{self.dataset_type}_{self.date}_cleaned.csv")
         
         return self.cleaned_dataframe
         
