@@ -19,14 +19,14 @@ class DataFrameBuilder:
     DROP_COLUMNS=[
         "fecha_nacimiento",
         "profesion",
-        "ocupacion",
+       # "ocupacion",
         "codigo_ciiu",
         "ciudad_residencia",
         "ciudad_laboral",
         "departamento_laboral",
-        "nivel_academico",
-        "tipo_vivienda",
-        "categoria",
+        #"nivel_academico",
+        #"tipo_vivienda",
+        #"categoria",
         "rechazo_credito",
         "cartera_castigada",
         "cant_moras_30_ult_12_meses",
@@ -38,11 +38,11 @@ class DataFrameBuilder:
         "tiene_cred_hipo_1",
         "tiene_cred_hipo_2",
         "cant_cast_ult_12m_sr",
-        "tenencia_tc",
-        "tiene_consumo",
-        "tiene_crediagil",
-        "pol_centr_ext",
-        "tiene_ctas_activas"
+        #"tenencia_tc",
+        #"tiene_consumo",
+        #"tiene_crediagil",
+        #"pol_centr_ext",
+        #"tiene_ctas_activas"
     ]
     
     def __init__(self, dataframe,date=None, keep_original=False, test=False):
@@ -107,9 +107,14 @@ class DataFrameBuilder:
                         )
                     )
         ########## Procesamiento columnas financieras
+        
+        dataframe['tiene_ctas_activas'] = np.where(dataframe['tiene_ctas_activas'] == 'X', 1,0)
+        dataframe['tenencia_tc'] = np.where(dataframe['tenencia_tc'] == 'SI', 1,0)
+        dataframe['tiene_consumo'] = np.where(dataframe['tiene_consumo'] == 'X', 1,0)
+        dataframe['tiene_crediagil'] = np.where(dataframe['tiene_crediagil'] == 'X', 1,0)        
+        dataframe['tiene_ctas_activas'] = np.where(dataframe['tiene_ctas_activas'] == 'X', 1,0)
+
         dataframe['convenio_lib'] = np.where(dataframe['convenio_lib'] == "\\N", "N", "S")
-        #dataframe['tiene_consumo'] = np.where(dataframe['tiene_consumo'] == "\\N", "N", "S")
-        #dataframe['tenencia_tc'] = np.where(dataframe['tenencia_tc'] == "NO", "N", "S")
         dataframe['cat_ingreso'] = np.where(
                                         dataframe['cat_ingreso'] == "\\N","OTROS",
                                         dataframe['cat_ingreso']
@@ -173,6 +178,11 @@ class DataFrameBuilder:
                                                         dataframe['cant_mora_30_consum_ult_3m_sf'] == "0",
                                                             "SIN MORA", "CON MORA")
         )
+        
+        dataframe['pol_centr_ext'] = np.where(dataframe['pol_centr_ext'] == '0', 'cumple',
+                                             np.where(
+                                             dataframe['pol_centr_ext'] == '\\N', "incumple", "NApl")
+        )
 
         return dataframe
     
@@ -216,4 +226,3 @@ class DataFrameBuilder:
             self.save_dataframe(cleaned_dataframe, path=f"{self.dataset_type}_{self.date}_cleaned.csv")
         
         return self.cleaned_dataframe
-        
