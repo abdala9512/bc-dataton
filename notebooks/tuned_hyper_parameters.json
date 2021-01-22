@@ -1,0 +1,29 @@
+{
+    "xgb": {
+        "n_estimators": 156,
+        "max_depth": 6,
+        "reg_alpha": 4,
+        "reg_lambda": 6,
+        "min_child_weight": 0,
+        "gamma": 5,
+        "learning_rate": 0.32016988217844417,
+        "colsample_bytree": 0.63
+    },
+    "catboost": {
+        "n_estimators": 79,
+        "learning_rate": 0.36795867440963326,
+        "depth": 10,
+        "l2_leaf_reg": 12,
+        "bagging_temperature": 0.36
+    },
+    "elasticnet": {
+        "alpha": 0.25409971962639083,
+        "l1_ratio": 0.4891012473448594
+    },
+    "lasso": {
+        "alpha": 0.45740563519342853
+    },
+    "ridge": {
+        "alpha": 7.837014991921964
+    }
+}
