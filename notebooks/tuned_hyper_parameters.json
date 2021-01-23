@@ -1,29 +1,29 @@
 {
     "xgb": {
-        "n_estimators": 156,
+        "n_estimators": 97,
         "max_depth": 6,
-        "reg_alpha": 4,
-        "reg_lambda": 6,
-        "min_child_weight": 0,
-        "gamma": 5,
-        "learning_rate": 0.32016988217844417,
-        "colsample_bytree": 0.63
+        "reg_alpha": 3,
+        "reg_lambda": 3,
+        "min_child_weight": 1,
+        "gamma": 3,
+        "learning_rate": 0.13041622282799686,
+        "colsample_bytree": 0.95
     },
     "catboost": {
-        "n_estimators": 79,
-        "learning_rate": 0.36795867440963326,
-        "depth": 10,
-        "l2_leaf_reg": 12,
-        "bagging_temperature": 0.36
+        "n_estimators": 193,
+        "learning_rate": 0.14408872558704444,
+        "depth": 9,
+        "l2_leaf_reg": 22,
+        "bagging_temperature": 0.97
     },
     "elasticnet": {
-        "alpha": 0.25409971962639083,
-        "l1_ratio": 0.4891012473448594
+        "alpha": 0.010207459218997851,
+        "l1_ratio": 0.010176529214874037
     },
     "lasso": {
-        "alpha": 0.45740563519342853
+        "alpha": 0.010321960110658869
     },
     "ridge": {
-        "alpha": 7.837014991921964
+        "alpha": 0.010158607662340394
     }
 }
