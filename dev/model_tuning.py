@@ -3,6 +3,12 @@ import joblib
 from optuna import Trial
 from optuna.samplers import TPESampler
 
+from sklearn.linear_model import ElasticNet, Lasso, Ridge
+from catboost import CatBoostRegressor
+import xgboost as xgb
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_percentage_error
 
 class ModelTuning:
     
