@@ -7,21 +7,15 @@ from scipy import stats
 from scipy.stats import norm, skew
 class DataFramePreProcessor:
     
-    def __init__(self, dataframe, test=False):
+    def __init__(self, dataframe, filter_threshold=50000, test=False):
         self.test = test
         self.original_dataframe = dataframe.copy()
         self.modeling_dataframe = None
+        self.filter_threshold = filter_threshold
     
     
     def handleMissingData(self, dataframe):
         dataframe['ingreso_final'] = dataframe['ingreso_final'].fillna(0)
-        dataframe['ind'] = dataframe['ind'].fillna(0)
-        dataframe['tipo_vivienda'] = dataframe['tipo_vivienda'].fillna("NO INFORMA")
-        dataframe['categoria'] = dataframe['categoria'].fillna("6")
-        dataframe['estado_civil'] =dataframe['estado_civil'].fillna("NI")
-        #dataframe['departamento_residencia'] = dataframe['departamento_residencia'].fillna("SIN INFORMACION")
-        dataframe['ocupacion'] = dataframe['ocupacion'].fillna("Otro")
-        dataframe['ind_mora_vigente']  = dataframe['ind_mora_vigente'].fillna("N") 
         return dataframe
     
     
@@ -36,53 +30,52 @@ class DataFramePreProcessor:
             "ind",
             "cat_ingreso",
             "departamento_residencia",
-            #ocupacion",
-            #estado_civil",
-            #tipo_vivienda",
-            #nivel_academico",
-            #rep_calif_cred",
-            "tiene_ctas_activas"
+            "ocupacion",
+            "estado_civil",
+            "tipo_vivienda",
+            "nivel_academico",
+            "rep_calif_cred",
+            "tiene_ctas_activas",
+            "mora_max",
+            "ind_mora_vigente",
+            "genero",
+            "convenio_lib"
+            
         ]
         
-            
         dataframe = dataframe.drop(to_drop,axis=1, errors='ignore')
         return dataframe
     
     
     # Borrar filas deacuerdo a cierta logica de negocio
     def rowFilter(self, dataframe):
+        cut = 0.99
         return dataframe[
-            #(dataframe['edad'] < 100) & # Imputar a percentil 99
-            (dataframe['gasto_familiar'] > 40000) &
-            #(dataframe['edad'] >=20) &
-            (dataframe['gasto_familiar'] < 30000000) &
-            # (dataframe['cant_oblig_tot_sf'] < 13) &
-            (dataframe['cuota_de_consumo'] >= 0) & # Mas bien transformar a cero
-            (dataframe['ingreso_final'] < 50000000) &
-            (dataframe['cuota_cred_hipot'] >= 0) &
-            (dataframe['cupo_total_tc'] < 50000000) & # Percentil 99%
-            (dataframe['cuota_tc_bancolombia'] < 10000000) & # percentil 99.99%
-            (dataframe['cuota_de_vivienda'] < 10000000) &# Percentil 99.99%
-            (dataframe['cuota_de_consumo'] < 10000000) & # percentil 99%
-            (dataframe['cuota_rotativos'] < 10000000)& # percentil 99.99%
-            (dataframe['cuota_tarjeta_de_credito'] < 10000000) & 
-            (dataframe['cuota_de_sector_solidario'] < 10000000) &
-            (dataframe['cuota_sector_real_comercio'] < 13000000) &# Percentil 99.5%
-            (dataframe['cuota_libranza_sf'] < 5000000) & # Percentil 99
-            (dataframe['ingreso_segurida_social'] < 25000000) & # percentil 99.9
-            (dataframe['ingreso_nomina'] < 20000000) &
-            (dataframe['saldo_prom3_tdc_mdo'] < 30000000) &
-            (dataframe['saldo_no_rot_mdo'] < 300000000) &
-            (dataframe['cuota_cred_hipot'] < 10000000) &
-            (dataframe['mediana_nom3'] < 20000000) &
-            (dataframe['mediana_pen3'] < 11000000) &
-            (dataframe['cuota_tc_mdo'] < 30000000) &
-            (dataframe['ingreso_nompen'] < 3000000) &
-            (dataframe['cant_oblig_tot_sf'] <= 15) &
-            (dataframe['ctas_activas'] < 5) &
-            (dataframe['nro_tot_cuentas'] < 5) 
-          #  ~(dataframe['departamento_residencia'].isin(['MADRID', 'ESTADO DE LA FLORIDA', 'VAUPES']))
-        ] 
+                (dataframe['gasto_familiar'] > self.filter_threshold) &
+                (dataframe['gasto_familiar'] < np.quantile(dataframe['gasto_familiar'], cut)) &
+                (dataframe['ingreso_final'] < np.quantile(dataframe['ingreso_final'], cut)) &
+                (dataframe['cupo_total_tc'] < np.quantile(dataframe['cupo_total_tc'], cut)) & # Percentil 99%
+                (dataframe['cuota_tc_bancolombia'] < np.quantile(dataframe['cuota_tc_bancolombia'], cut)) & # percentil 99.99%
+                (dataframe['cuota_de_vivienda'] < np.quantile(dataframe['cuota_de_vivienda'], cut)) &# Percentil 99.99%
+                (dataframe['cuota_de_consumo'] < np.quantile(dataframe['cuota_de_consumo'], cut)) & # percentil 99%
+                (dataframe['cuota_rotativos'] < np.quantile(dataframe['cuota_rotativos'], cut))& # percentil 99.99%
+                (dataframe['cuota_tarjeta_de_credito'] < np.quantile(dataframe['cuota_tarjeta_de_credito'], cut)) & 
+                (dataframe['cuota_de_sector_solidario'] < np.quantile(dataframe['cuota_de_sector_solidario'], cut)) &
+                (dataframe['cuota_sector_real_comercio'] < np.quantile(dataframe['cuota_sector_real_comercio'], cut)) &# Percentil 99.5%
+                (dataframe['cuota_libranza_sf'] < np.quantile(dataframe['cuota_libranza_sf'], cut)) & # Percentil 99
+                (dataframe['ingreso_segurida_social'] < np.quantile(dataframe['ingreso_segurida_social'], cut)) & # percentil 99.9
+                (dataframe['ingreso_nomina'] < np.quantile(dataframe['ingreso_nomina'], cut)) &
+                (dataframe['saldo_prom3_tdc_mdo'] < np.quantile(dataframe['saldo_prom3_tdc_mdo'], cut)) &
+                (dataframe['saldo_no_rot_mdo'] < np.quantile(dataframe['saldo_no_rot_mdo'], cut)) &
+                (dataframe['cuota_cred_hipot'] < np.quantile(dataframe['cuota_cred_hipot'], cut)) &
+                (dataframe['mediana_nom3'] < np.quantile(dataframe['mediana_nom3'], cut)) &
+                (dataframe['mediana_pen3'] < np.quantile(dataframe['mediana_pen3'], cut)) &
+                (dataframe['cuota_tc_mdo'] < np.quantile(dataframe['cuota_tc_mdo'], cut)) &
+                (dataframe['ingreso_nompen'] < np.quantile(dataframe['ingreso_nompen'], cut)) &
+                (dataframe['cant_oblig_tot_sf'] <= 15) &
+                (dataframe['ctas_activas'] < 5) &
+                (dataframe['nro_tot_cuentas'] < 5) 
+            ] 
     
     def oneEncodeVariables(self):
         pass
@@ -90,37 +83,19 @@ class DataFramePreProcessor:
     def processVars(self, dataframe):
         
         # Transformacion demograficas
-        dataframe['genero'] = np.where(dataframe['genero'] == 'M', 0, 1)
         dataframe['edad'] = np.where(dataframe['edad'] < 18, 18,
                                     np.where(dataframe['edad'] > 80, 80, dataframe['edad']
                                     ))
-        #dataframe['educacion_grupo'] = np.where(
-        #    dataframe['nivel_academico'].isin(['PRIMARIO', 'UNIVERSITARIO', 'ESPECIALIZACION']),1,0
-        #)
 
-        dataframe['tipo_vivienda'] =  np.where(dataframe['tipo_vivienda'] == "\\N", "NO INFORMA", dataframe['tipo_vivienda'])
-        dataframe['categoria']=np.where(dataframe['categoria']=='\\N', "6",dataframe['categoria'])
-        dataframe['categoria']=dataframe['categoria'].astype(float).astype(int)
-        dataframe['ocupacion']=np.where(dataframe['ocupacion'].isin(
-                ["\\N", "Agricultor", "Ganadero", 'Vacío', "Ama de casa", "Sin Ocupacion Asignada"]), "Otro",
-                                       np.where(dataframe['ocupacion'] == "Pensionado", "Jubilado", dataframe['ocupacion']
-                                               ))
-        
-        #dataframe['departamento_residencia'] = \
-        #    np.where(
-        #        dataframe['departamento_residencia'].isin(['\\N', 'NARIÑO', 'NARI#O', 'VAUPES','MADRID', 'ESTADO DE LA FLORIDA']),
-        #        "SIN INFORMACION", dataframe['departamento_residencia'] )
-        #dataframe['es_ciudad_principal'] = np.where(
-        #    dataframe['departamento_residencia'].isin(['BOGOTA D.C.', 'ANTIOQUIA', 'VALLE', 'CUNDINAMARCA']), 1,0)        
-        
-        dataframe['ind_mora_vigente'] = np.where(dataframe['ind_mora_vigente'] == "S", 1, 0)
-        dataframe['convenio_lib'] = np.where(dataframe['convenio_lib'] == 'S', 1, 0)
         # Transformacion finacieras
         dataframe['ingreso_calculado'] =  dataframe['ingreso_segurida_social']  +  \
                                           dataframe[['ingreso_nompen', 'ingreso_nomina']].max(axis=1)
         dataframe['ingreso_corr'] = dataframe[['ingreso_final', 'ingreso_calculado']].max(axis=1)
         
         dataframe['cuota_cred_hipot'] = dataframe[['cuota_cred_hipot', 'cuota_de_vivienda']].max(axis=1)
+        
+        dataframe['cuota_de_consumo'] =np.where(dataframe['cuota_de_consumo'] < 0, 0, dataframe['cuota_de_consumo'])
+        dataframe['cuota_cred_hipot'] =np.where(dataframe['cuota_cred_hipot'] < 0, 0, dataframe['cuota_cred_hipot'])                                        
                 
         pct_vars = [
             'cuota_cred_hipot',
@@ -158,41 +133,22 @@ class DataFramePreProcessor:
                                    dataframe['cuota_tc_bancolombia']
         
         dataframe['total_cupo'] = dataframe['cupo_total_tc'] + dataframe['cupo_tc_mdo']
-        dataframe['ingreso_cero'] = np.where(dataframe['ingreso_corr'] == 0, 1, 0)
         
         # Variables de interaccion
         dataframe['interact_ing_gen']  = dataframe['genero'] * dataframe['ingreso_corr']
         dataframe['interact_ing_ed']  = dataframe['edad'] * dataframe['ingreso_corr']
-        dataframe['interact_cup_gen']  = dataframe['genero'] * dataframe['total_cupo']
-        dataframe['interact_cup_ed']  = dataframe['edad'] * dataframe['total_cupo']
-        dataframe['interact_obl_gen'] = dataframe['genero'] * dataframe['obl_total_pct']
-        dataframe['interact_obl_ed']  = dataframe['edad'] * dataframe['obl_total_pct']    
 
-        #dataframe['ingreso_geo_alto']  = np.where(dataframe['ingreso_corr'] < 14.90, 1, 0) # ALgo mas tecnico
-
-    
-        #dataframe['pc25'] = np.where(dataframe['ingreso_corr'] <= np.quantile(dataframe['ingreso_corr'],0.25), 1, 0)
-        #dataframe['pc75'] = np.where(dataframe['ingreso_corr'] >= np.quantile(dataframe['ingreso_corr'],0.75), 1, 0)
-
-        # variables al cuadrado
-        
-        #dataframe['edad_2'] = dataframe['edad']**2
+        # variables al cuadrado        
         dataframe['total_cuota_2']  =dataframe['total_cuota']**2
-        #dataframe['total_cupo_2']  =dataframe['total_cupo']**2
-        #dataframe['obl_total_pct_2'] = dataframe['obl_total_pct']**2
-        #dataframe['ingreso_corr2'] = dataframe['ingreso_corr']**2 
+ 
         
-        
-        dataframe['cupo_pct'] = dataframe['total_cupo']/dataframe['ingreso_corr']
-        dataframe['cupo_disponible'] = dataframe['total_cupo'] - dataframe['cuota_tarjeta_de_credito'] - \
-                                       dataframe['cuota_tc_bancolombia']
-        dataframe['liquidez'] = dataframe['cupo_disponible'] + dataframe['ingreso_corr']
-        #dataframe['liquidez_c'] = dataframe['total_cupo'] + dataframe['ingreso_corr']
+
         dataframe['cuota_pct_cupo'] = (dataframe['cuota_tarjeta_de_credito'] + dataframe['cuota_tc_bancolombia']) / dataframe['total_cupo']
-        #dataframe['ind_corregido'] = dataframe['ingreso_corr'] - dataframe['total_cuota'] - dataframe['ingreso_corr']*0.1
-        #dataframe['ratio_cupo'] = dataframe['cupo_tc_mdo']/dataframe['cupo_tc_mdo']
+
         
-        
+        dataframe.replace([np.inf, -np.inf], np.nan, inplace=True)
+        dataframe.fillna(0, inplace=True)
+
         
         if not self.test:
             dataframe['log_gasto_familiar'] = np.log1p(dataframe['gasto_familiar']) 
@@ -208,33 +164,69 @@ class DataFramePreProcessor:
         skewness = skewness[abs(skewness) > 0.75]       
         skewed_features = skewness.index
         lam = 0.15
+        PT_transformer = PowerTransformer()
         for feat in skewed_features:
-            dataframe[feat] = boxcox1p(dataframe[feat], lam)        
-        
-        cat_vars = [
-            'mora_max',
-            'estado_civil',
-            'rep_calif_cred',
-            'ocupacion',
-            'tipo_vivienda',
-            'nivel_academico',
-            #'departamento_residencia'
-        ]
-        
-        dummified = []
-        for var in cat_vars:            
-            dummified.append(
-                pd.get_dummies(dataframe[var], drop_first=True, prefix=var)
-            )
-        
-        dummified = pd.concat(dummified, axis=1)
-        dataframe = pd.concat([dataframe.drop(cat_vars, axis=1),dummified], axis=1)
-        
+             dataframe[feat] = boxcox1p(dataframe[feat], lam)        
+            #dataframe[feat] = PT_transformer.fit_transform(dataframe[feat].values.reshape(-1,1))
+            
+            
+        cat_vars = []
+        if cat_vars:
+            dummified = []
+            for var in cat_vars:            
+                dummified.append(
+                    pd.get_dummies(dataframe[var], drop_first=True, prefix=var)
+                )
+
+            dummified = pd.concat(dummified, axis=1)
+            dataframe = pd.concat([dataframe.drop(cat_vars, axis=1),dummified], axis=1)
+            
         ## Final cleaning
         
-        dataframe.drop(["ingreso_final", "ingreso_calculado", "cuota_de_vivienda"], axis=1, inplace=True)
-        dataframe.replace([np.inf, -np.inf], np.nan, inplace=True)
-        dataframe.fillna(0, inplace=True)
+        dataframe.drop(["ingreso_final", "ingreso_calculado",
+                        "cuota_de_vivienda", "gasto_familiar",
+                        #"cupo_total_tc",
+                        "cupo_total_tc_pct", "cupo_tc_mdo_pct", "cupo_disponible",
+                        #"cupo_tc_mdo",
+                        #"cupo_total_tc",
+                        "ingreso_nompen", "ingreso_nomina", "ingreso_segurida_social",
+                        "tenencia_tc", # Alta correlacion con cuota tarjeta de credito
+                        "ctas_activas", # Alta correlacion con nto_tot_cuentas
+                        "cuota_cred_hipot_pct", #altta correlacion con cuota credito hipotecario
+                        "cuota_de_consumo_pct", #Alta correlacion con cuta de consumo
+                        "cuota_rotaticos_pct", # Alta correlacion con cuota de rotativos
+                        "cuota_tarjeta_de_credito_pct",
+                        "cuota_de_sector_solidario_pct",
+                        "cuota_sector_real_comercio_pct",
+                        "cuota_libranza_sf_pct",
+                        "cuota_tc_bancolombia_pct",
+                        "cuota_rotativos_pct",
+                        # REVISAR BIEN
+                        "saldo_no_rot_mdo",
+                        "total_cuota",
+                        "total_cupo",
+                        "convenio_lib",
+                        "ind_mora_vigente",
+                        #'cuota_cred_hipot',
+                        #'cuota_tarjeta_de_credito',
+                        #'cuota_de_consumo',
+                        #'cuota_rotativos',
+                        #'cuota_sector_real_comercio',
+                        #'cuota_de_sector_solidario',
+                        #'cuota_tc_bancolombia',
+                        #'cuota_libranza_sf',
+                        "tiene_consumo",
+                        #"cuota_tc_mdo",
+                        "tiene_crediagil",
+                        "nivel_academico",
+                        "total_cupo",
+                        "nro_tot_cuentas",
+                        "mediana_nom3",
+                        "mediana_pen3",
+                        "cant_oblig_tot_sf",
+                        "saldo_prom3_tdc_mdo",
+                        "cuota_pct_cupo"
+                       ], axis=1, inplace=True,  errors='ignore')
 
         return dataframe
     
