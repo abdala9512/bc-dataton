@@ -1,29 +1,30 @@
 {
     "xgb": {
-        "n_estimators": 97,
+        "n_estimators": 128,
         "max_depth": 6,
-        "reg_alpha": 3,
-        "reg_lambda": 3,
-        "min_child_weight": 1,
-        "gamma": 3,
-        "learning_rate": 0.13041622282799686,
-        "colsample_bytree": 0.95
+        "reg_alpha": 6,
+        "reg_lambda": 1,
+        "min_child_weight": 4,
+        "gamma": 4,
+        "learning_rate": 0.09068007494436822,
+        "colsample_bytree": 0.93,
+        "objective": "reg:squaredlogerror"
     },
     "catboost": {
-        "n_estimators": 193,
-        "learning_rate": 0.14408872558704444,
+        "n_estimators": 130,
+        "learning_rate": 0.22611074333908893,
         "depth": 9,
-        "l2_leaf_reg": 22,
-        "bagging_temperature": 0.97
+        "l2_leaf_reg": 24,
+        "bagging_temperature": 0.1
     },
     "elasticnet": {
-        "alpha": 0.010207459218997851,
-        "l1_ratio": 0.010176529214874037
+        "alpha": 0.01043683315485499,
+        "l1_ratio": 0.01752370125180038
     },
     "lasso": {
-        "alpha": 0.010321960110658869
+        "alpha": 0.010197390039305795
     },
     "ridge": {
-        "alpha": 0.010158607662340394
+        "alpha": 94.90403234662571
     }
 }
