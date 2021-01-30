@@ -1,26 +1,19 @@
 {
     "xgb": {
-        "n_estimators": 186,
-        "max_depth": 15,
-        "reg_alpha": 8,
-        "reg_lambda": 0,
-        "min_child_weight": 1,
-        "gamma": 5,
-        "learning_rate": 0.08759884101222018,
+        "n_estimators": 181,
+        "max_depth": 19,
+        "reg_alpha": 7,
+        "reg_lambda": 6,
+        "min_child_weight": 0,
+        "gamma": 3,
+        "learning_rate": 0.0502007930169627,
         "colsample_bytree": 0.7
     },
     "catboost": {
-        "n_estimators": 198,
-        "learning_rate": 0.20592580873493546,
-        "depth": 8,
-        "l2_leaf_reg": 24,
-        "bagging_temperature": 0.55
-    },
-    "elasticnet": {
-        "alpha": 0.010100253337498689,
-        "l1_ratio": 0.05135581244105874
-    },
-    "ridge": {
-        "alpha": 0.01010792650953282
+        "n_estimators": 164,
+        "learning_rate": 0.142404812667159,
+        "depth": 9,
+        "l2_leaf_reg": 4,
+        "bagging_temperature": 1.0
     }
 }
