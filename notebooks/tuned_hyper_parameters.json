@@ -1,19 +1,27 @@
 {
     "xgb": {
-        "n_estimators": 181,
-        "max_depth": 19,
-        "reg_alpha": 7,
-        "reg_lambda": 6,
-        "min_child_weight": 0,
-        "gamma": 3,
-        "learning_rate": 0.0502007930169627,
-        "colsample_bytree": 0.7
+        "n_estimators": 167,
+        "max_depth": 17,
+        "reg_alpha": 4,
+        "reg_lambda": 2,
+        "min_child_weight": 4,
+        "gamma": 1,
+        "learning_rate": 0.0539147490096773,
+        "colsample_bytree": 0.85
     },
     "catboost": {
-        "n_estimators": 164,
-        "learning_rate": 0.142404812667159,
+        "n_estimators": 200,
+        "learning_rate": 0.14599749571037995,
         "depth": 9,
-        "l2_leaf_reg": 4,
+        "l2_leaf_reg": 11,
         "bagging_temperature": 1.0
+    },
+    "light": {
+        "max_depth ": 10,
+        "n_estimators": 199,
+        "reg_alpha": 0.2672646107400222,
+        "reg_lambda ": 2.5036842523642497,
+        "learning_rate": 0.09090868242478475,
+        "colsample_bytree": 0.88
     }
 }
